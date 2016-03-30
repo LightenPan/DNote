@@ -2,32 +2,21 @@ package com.brcorner.dnote.android.activity;
 
 import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.drawable.AnimationDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.ContactsContract.CommonDataKinds.Note;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
-import android.view.ActionMode;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
-import android.view.View.OnLongClickListener;
 import android.view.ViewStub;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -36,10 +25,10 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.brcorner.dnote.android.R;
 import com.brcorner.dnote.android.adapter.NoteAdapter;
@@ -48,9 +37,15 @@ import com.brcorner.dnote.android.data.DNoteDB;
 import com.brcorner.dnote.android.listener.MyAnimationListener;
 import com.brcorner.dnote.android.listener.MyHideAnimationListener;
 import com.brcorner.dnote.android.model.NoteModel;
+import com.brcorner.dnote.android.restful.BaseNetTool;
+import com.brcorner.dnote.android.restful.DefaultRestfulClient;
+import com.brcorner.dnote.android.restful.RequestCallback;
 import com.brcorner.dnote.android.utils.CommonUtils;
 import com.brcorner.drag_sort_listview_lib.DragSortController;
 import com.brcorner.drag_sort_listview_lib.DragSortListView;
+import com.loopj.android.http.RequestParams;
+
+import org.json.JSONObject;
 
 
 public class MainActivity extends Activity {
@@ -120,6 +115,9 @@ public class MainActivity extends Activity {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notes);
+
+        DefaultRestfulClient.inst().init(this);
+
         this.initView();
         listPage();
     }
@@ -321,6 +319,36 @@ public class MainActivity extends Activity {
         about_bg.setClickable(true);
 
         CommonUtils.stack.push(ConstantData.INFOR_DIALOG);
+    }
+
+    // 请求包测试
+    public void baseProtocolReq(View view) {
+        BaseNetTool oNetTool = new BaseNetTool();
+        RequestParams params = new RequestParams();
+        params.put("env", 0);
+        params.put("offset", 0);
+        params.put("count", 1);
+        final String url = "http://10.210.151.243/jsonapi/scrapy_news/GetList";
+        oNetTool.get(url, params, new RequestCallback() {
+
+            @Override
+            protected void onSuccess(JSONObject resp) {
+                Toast.makeText(getApplicationContext(), resp.toString(), Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            protected void onFailure(int statusCode, String message) {
+                String errmsg = String.format("请求失败. url: %s, status_code: %d, message: %s",
+                        url, statusCode, message);
+                Toast.makeText(getApplicationContext(), errmsg, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            protected void onTimeOut() {
+                String errmsg = String.format("请求超时. url: %s", url);
+                Toast.makeText(getApplicationContext(), errmsg, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     public void hideInfoDialog(View view) {

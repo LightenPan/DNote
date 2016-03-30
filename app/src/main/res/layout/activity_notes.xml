@@ -255,6 +255,17 @@
                 android:scaleType="center"
                 android:src="@mipmap/info" />
 
+            <ImageView
+                android:id="@+id/info_image2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="@drawable/btn_back"
+                android:clickable="true"
+                android:onClick="baseProtocolReq"
+                android:scaleType="center"
+                android:src="@mipmap/info" />
+
             <Button
                 android:id="@+id/back_btn"
                 android:layout_width="wrap_content"
